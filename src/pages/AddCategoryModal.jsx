@@ -8,12 +8,12 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit = n
   const [fields, setFields] = useState([
     { label: '', type: 'text', unit: '', options: '' }
   ]);
-
+  const [description, setDescription] = useState('');
   // Initialize form when editing
   useEffect(() => {
     if (categoryToEdit) {
       setName(categoryToEdit.name);
-      
+        setDescription(categoryToEdit.description || '');
       const formattedFields = categoryToEdit.fields.map(field => ({
         label: field.label,
         type: field.type,
@@ -34,6 +34,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded, categoryToEdit = n
 
   const resetForm = () => {
     setName('');
+     setDescription(''); 
     setFields([{ label: '', type: 'text', unit: '', options: '' }]);
     setError('');
   };
@@ -113,7 +114,7 @@ const res = await fetch(url, {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`
   },
-  body: JSON.stringify({ name, fields: formattedFields }),
+  body: JSON.stringify({ name,description,  fields: formattedFields }),
 });
 
       if (!res.ok) {
@@ -198,7 +199,19 @@ const res = await fetch(url, {
               required
             />
           </div>
-
+{/* Category Description */}
+<div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-200">
+  <label className="block font-semibold text-gray-800 mb-2">
+    Description
+  </label>
+  <textarea
+    className="w-full border rounded-lg px-4 py-3 text-gray-800 focus:border-red-400 focus:ring-2 focus:ring-red-100 outline-none"
+    placeholder="Enter category description..."
+    value={description}
+    onChange={(e) => setDescription(e.target.value)}
+    rows={3}
+  />
+</div>
           {/* Dynamic Fields Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
