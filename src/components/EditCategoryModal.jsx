@@ -66,10 +66,10 @@ const EditCategoryModal = ({ isOpen, onClose, onEditCategory, category }) => {
       <div className="bg-white rounded-lg w-full max-w-sm mx-2 sm:mx-0">
         <div className="p-4 sm:p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800">Edit Category</h2>
+            <h2 className="text-lg sm:text-xl  text-gray-800">Edit Category</h2>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-xl font-bold p-1"
+              className="text-gray-500 hover:text-gray-700 text-xl  p-1"
               aria-label="Close"
             >
               ×

@@ -33,7 +33,7 @@ const CustomerDetailsModal = ({ customer, onClose, onDeactivate, onDelete }) => 
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-slate-800">Customer Details</h2>
+            <h2 className="text-2xl  text-slate-800">Customer Details</h2>
             <p className="text-slate-600">View and manage customer information</p>
           </div>
           <button
@@ -48,11 +48,11 @@ const CustomerDetailsModal = ({ customer, onClose, onDeactivate, onDelete }) => 
         <div className="p-6">
           {/* Profile Header */}
           <div className="flex items-start gap-4 mb-6">
-            <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+            <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl ">
               {customer.name?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-slate-800">{customer.name}</h3>
+              <h3 className="text-xl  text-slate-800">{customer.name}</h3>
               <p className="text-slate-600">{customer.email}</p>
               <div className="flex items-center gap-2 mt-2">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${customer.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -142,7 +142,7 @@ const CustomerDetailsModal = ({ customer, onClose, onDeactivate, onDelete }) => 
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500">Total Orders</p>
-                  <p className="text-2xl font-bold text-slate-800">12</p>
+                  <p className="text-2xl  text-slate-800">12</p>
                 </div>
                 <ShoppingBag className="w-8 h-8 text-blue-500" />
               </div>
@@ -151,7 +151,7 @@ const CustomerDetailsModal = ({ customer, onClose, onDeactivate, onDelete }) => 
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500">Total Spent</p>
-                  <p className="text-2xl font-bold text-slate-800">$1,240</p>
+                  <p className="text-2xl  text-slate-800">$1,240</p>
                 </div>
                 <CreditCard className="w-8 h-8 text-green-500" />
               </div>
@@ -160,7 +160,7 @@ const CustomerDetailsModal = ({ customer, onClose, onDeactivate, onDelete }) => 
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500">Pending Orders</p>
-                  <p className="text-2xl font-bold text-slate-800">2</p>
+                  <p className="text-2xl  text-slate-800">2</p>
                 </div>
                 <Package className="w-8 h-8 text-amber-500" />
               </div>

@@ -691,7 +691,7 @@ const handleEditProduct = async (productId, productData) => {
           {/* Header */}
           <header className="bg-white shadow sticky top-0 z-10">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 sm:px-6 py-4 space-y-2 sm:space-y-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Products Management</h1>
+              <h1 className="text-xl sm:text-2xl  text-gray-800">Products Management</h1>
             </div>
           </header>
 

@@ -612,7 +612,7 @@ const OrdersPage = () => {
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-sm">🛒</div>
               <div>
-                <h1 className="font-bold text-sm sm:text-base">ORDER RECEIPT</h1>
+                <h1 className=" text-sm sm:text-base">ORDER RECEIPT</h1>
                 <p className="text-blue-200 text-xs sm:text-sm">#{orderId?.substring(0, 12)}</p>
               </div>
             </div>
@@ -655,7 +655,7 @@ const OrdersPage = () => {
 
             <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-gray-50 rounded border">
               <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold text-sm sm:text-base truncate">{customerName}</h3>
+                <h3 className=" text-sm sm:text-base truncate">{customerName}</h3>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-1">
@@ -679,7 +679,7 @@ const OrdersPage = () => {
 
             <div className="mb-3 sm:mb-4">
               <div className="flex justify-between items-center mb-1">
-                <h3 className="font-bold text-sm sm:text-base">Items ({items.length})</h3>
+                <h3 className=" text-sm sm:text-base">Items ({items.length})</h3>
               </div>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {items.map((item, index) => (
@@ -688,7 +688,7 @@ const OrdersPage = () => {
                       <div className="font-medium text-xs sm:text-sm truncate">{item.product?.name || item.name}</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-xs sm:text-sm">{formatCurrency((item.price || 0) * (item.quantity || 1))}</div>
+                      <div className=" text-xs sm:text-sm">{formatCurrency((item.price || 0) * (item.quantity || 1))}</div>
                     </div>
                   </div>
                 ))}
@@ -709,7 +709,7 @@ const OrdersPage = () => {
                   <span className="text-gray-700">Tax:</span>
                   <span className="font-semibold">{formatCurrency(tax)}</span>
                 </div>
-                <div className="flex justify-between pt-2 border-t border-blue-300 font-bold text-base sm:text-lg">
+                <div className="flex justify-between pt-2 border-t border-blue-300  text-base sm:text-lg">
                   <span>TOTAL:</span>
                   <span className="text-green-700">{formatCurrency(total)}</span>
                 </div>
@@ -804,7 +804,7 @@ const OrdersPage = () => {
         <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
           <div className="px-4 py-3 sm:px-6 sm:py-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+              <h1 className="text-xl sm:text-2xl  text-gray-800">
                 Orders Management
               </h1>
               <button
@@ -828,10 +828,10 @@ const OrdersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Total</p>
-                  <p className="text-xl font-bold text-gray-800 mt-1">{totalOrders}</p>
+                  <p className="text-xl  text-gray-800 mt-1">{totalOrders}</p>
                 </div>
                 <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <span className="text-blue-600 font-bold">📦</span>
+                  <span className="text-blue-600 ">📦</span>
                 </div>
               </div>
             </div>
@@ -840,10 +840,10 @@ const OrdersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Pending</p>
-                  <p className="text-xl font-bold text-yellow-600 mt-1">{pendingOrders}</p>
+                  <p className="text-xl  text-yellow-600 mt-1">{pendingOrders}</p>
                 </div>
                 <div className="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center">
-                  <span className="text-yellow-600 font-bold">⏳</span>
+                  <span className="text-yellow-600 ">⏳</span>
                 </div>
               </div>
             </div>
@@ -852,10 +852,10 @@ const OrdersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Delivered</p>
-                  <p className="text-xl font-bold text-green-600 mt-1">{deliveredOrders}</p>
+                  <p className="text-xl  text-green-600 mt-1">{deliveredOrders}</p>
                 </div>
                 <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-                  <span className="text-green-600 font-bold">✅</span>
+                  <span className="text-green-600 ">✅</span>
                 </div>
               </div>
             </div>
@@ -864,10 +864,10 @@ const OrdersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Refunded</p>
-                  <p className="text-xl font-bold text-purple-600 mt-1">{refundedOrders}</p>
+                  <p className="text-xl  text-purple-600 mt-1">{refundedOrders}</p>
                 </div>
                 <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 font-bold">↩️</span>
+                  <span className="text-purple-600 ">↩️</span>
                 </div>
               </div>
             </div>
@@ -979,7 +979,7 @@ const OrdersPage = () => {
                         <div className="text-gray-600">
                           {order.items?.length || order.products?.length || 0} items
                         </div>
-                        <div className="font-bold text-gray-900">
+                        <div className=" text-gray-900">
                           {formatCurrency(order.finalAmount || order.totalAmount || 0)}
                         </div>
                       </div>

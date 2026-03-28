@@ -671,7 +671,7 @@ const Settings = () => {
         {/* Header - Mobile Optimized */}
         <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10 px-4 py-3 sm:px-6">
           <div className="flex flex-col space-y-2">
-            <h1 className="text-xl font-bold text-gray-900">Settings</h1>
+            <h1 className="text-xl  text-gray-900">Settings</h1>
             <p className="text-sm text-gray-600">Configure your store settings and preferences</p>
           </div>
         </header>

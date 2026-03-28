@@ -62,7 +62,7 @@ const CustomerEditModal = ({ customer, onClose, onUpdate }) => {
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-slate-800">Edit Customer</h2>
+            <h2 className="text-2xl  text-slate-800">Edit Customer</h2>
             <p className="text-slate-600">Update customer information</p>
           </div>
           <button

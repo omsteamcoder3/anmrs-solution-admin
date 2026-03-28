@@ -236,7 +236,7 @@
 //         <div className="p-3 sm:p-4 md:p-6">
 //           {/* Header */}
 //           <div className="mb-4 sm:mb-6">
-//             <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">ShipRocket Dashboard</h1>
+//             <h1 className="text-lg sm:text-xl md:text-2xl  text-gray-800">ShipRocket Dashboard</h1>
 //             <p className="text-gray-600 text-xs sm:text-sm md:text-base">Manage and track all your shipments</p>
 //           </div>
 
@@ -267,7 +267,7 @@
 //                 <div className="flex justify-between items-center">
 //                   <div className="flex-1 min-w-0">
 //                     <p className="text-gray-500 text-xs sm:text-sm truncate">{stat.label}</p>
-//                     <p className={`text-base sm:text-lg lg:text-xl font-bold truncate ${stat.color}`}>
+//                     <p className={`text-base sm:text-lg lg:text-xl  truncate ${stat.color}`}>
 //                       {stat.value}
 //                     </p>
 //                   </div>
@@ -476,7 +476,7 @@
 //           <div className="bg-white rounded-lg sm:rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
 //             <div className="p-4 sm:p-6">
 //               <div className="flex justify-between items-center mb-4 sm:mb-6">
-//                 <h2 className="text-lg sm:text-xl font-bold text-gray-800">Shipment Tracking</h2>
+//                 <h2 className="text-lg sm:text-xl  text-gray-800">Shipment Tracking</h2>
 //                 <button
 //                   onClick={closeTrackingModal}
 //                   className="text-gray-400 hover:text-gray-600 p-1"

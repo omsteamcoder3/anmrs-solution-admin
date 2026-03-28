@@ -96,7 +96,7 @@ const res = await fetch(`${import.meta.env.VITE_API_FILE_URL}/api/categories`, {
         {/* Header Section */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
+            <h1 className="text-3xl  text-gray-900">Categories</h1>
             <p className="text-gray-600 mt-2">Manage your product categories and their attributes</p>
           </div>
           <button
@@ -142,7 +142,7 @@ const res = await fetch(`${import.meta.env.VITE_API_FILE_URL}/api/categories`, {
                   {/* Category Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                      <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center text-white  text-xl">
                         {category.name.charAt(0).toUpperCase()}
                       </div>
                       <div>

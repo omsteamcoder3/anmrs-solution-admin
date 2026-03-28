@@ -283,7 +283,7 @@ const CustomerPage = () => {
         <header className="bg-white shadow sticky top-0 z-10 mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 sm:px-6 py-4 space-y-2 sm:space-y-0">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-3">
+              <h1 className="text-xl sm:text-2xl  text-gray-800 flex items-center gap-3">
                 <Users className="w-6 h-6 md:w-8 md:h-8" />
                 Customers Management
               </h1>

@@ -51,7 +51,7 @@ const Sidebar = () => {
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 z-40">
         <div className="flex items-center justify-between p-4">
           <div>
-            <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+            <h2 className="text-xl  bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
               Admin Panel
             </h2>
           </div>
@@ -82,7 +82,7 @@ const Sidebar = () => {
       `}>
         {/* Header */}
         <div className="mb-8 pt-4 pl-2 flex-shrink-0">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl  bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
             Admin Panel
           </h2>
           <p className="text-slate-500 text-sm mt-2">Welcome back!</p>
@@ -144,7 +144,7 @@ const Sidebar = () => {
           <div className="p-3 bg-white/80 rounded-xl backdrop-blur-sm border border-slate-200/60">
             <div className="flex items-center space-x-3">
               <div className="w-9 h-9 bg-gradient-to-r from-slate-700 to-slate-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">A</span>
+                <span className="text-white  text-sm">A</span>
               </div>
               <div>
                 <p className="text-slate-800 font-medium text-sm">Admin User</p>

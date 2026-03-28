@@ -93,7 +93,7 @@ const Dashboard = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 space-y-2 sm:space-y-0">
               <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl  bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Admin Dashboard
                 </h1>
                 <p className="text-slate-600 mt-1 text-sm sm:text-base">Welcome back, {user?.name} 👋</p>
@@ -133,7 +133,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <dt className="text-xs sm:text-sm font-medium text-slate-600">Total Users</dt>
-                      <dd className="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+                      <dd className="mt-1 text-xl sm:text-2xl lg:text-3xl  text-slate-900">
                         {dashboardData.totalUsers.toLocaleString()}
                       </dd>
                     </div>
@@ -155,7 +155,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <dt className="text-xs sm:text-sm font-medium text-slate-600">Total Orders</dt>
-                      <dd className="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+                      <dd className="mt-1 text-xl sm:text-2xl lg:text-3xl  text-slate-900">
                         {dashboardData.totalOrders.toLocaleString()}
                       </dd>
                     </div>
@@ -175,7 +175,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <dt className="text-xs sm:text-sm font-medium text-slate-600">Pending Orders</dt>
-                      <dd className="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+                      <dd className="mt-1 text-xl sm:text-2xl lg:text-3xl  text-slate-900">
                         {dashboardData.pendingOrders.toLocaleString()}
                       </dd>
                     </div>
@@ -197,7 +197,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <dt className="text-xs sm:text-sm font-medium text-slate-600">Low Stock Items</dt>
-                      <dd className="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+                      <dd className="mt-1 text-xl sm:text-2xl lg:text-3xl  text-slate-900">
                         {dashboardData.lowStockCount.toLocaleString()}
                       </dd>
                     </div>
