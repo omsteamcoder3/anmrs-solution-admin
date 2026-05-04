@@ -23,12 +23,15 @@ const Sidebar = () => {
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/categories', label: 'Categories', icon: Tag }, 
     { path: '/products', label: 'Products', icon: Package },
+    {path: '/adminaboutpage', label: 'About Page', icon: Users},
+        { path: '/adminwhatweofferpage', label: 'What We Offer', icon: Users },
     { path: '/orders', label: 'Orders', icon: ClipboardList },
     // { path: '/shiprocket', label: 'ShipRocket', icon: Rocket },
    
     { path: '/customers', label: 'Customers', icon: Users },
     //  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/settings', label: 'Settings', icon: Settings },
+
   ];
 
   const toggleMobileMenu = () => {

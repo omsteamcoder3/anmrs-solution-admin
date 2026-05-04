@@ -12,6 +12,8 @@ import CategoriesPage from './pages/CategoriesPage';
 // import ShipRocketDashboard from './pages/ShipRocketDashboard';
 import CustomerPage from './pages/CustomerPage';
 import Settings from './pages/Settings'; // Add this import
+import AdminAboutPage from './pages/AdminAboutPage';
+import AdminWhatWeOfferPage from './pages/AdminWhatWeOfferPage'; // Import the new page
 
 function App() {
   return (
@@ -33,6 +35,22 @@ function App() {
               element={
                 <ProtectedRoute adminOnly={true}>
                   <CategoriesPage />  {/* Use the page component */}
+                </ProtectedRoute>
+              } 
+            />
+                 <Route 
+              path="/adminaboutpage"  // Changed from /addcategorymodal
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminAboutPage />  {/* Use the page component */}
+                </ProtectedRoute>
+              } 
+            />
+                   <Route 
+              path="/adminwhatweofferpage"  // Changed from /addcategorymodal
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminWhatWeOfferPage />  {/* Use the page component */}
                 </ProtectedRoute>
               } 
             />
