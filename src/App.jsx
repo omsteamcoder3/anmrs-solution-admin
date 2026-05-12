@@ -14,7 +14,7 @@ import CustomerPage from './pages/CustomerPage';
 import Settings from './pages/Settings'; // Add this import
 import AdminAboutPage from './pages/AdminAboutPage';
 import AdminWhatWeOfferPage from './pages/AdminWhatWeOfferPage'; // Import the new page
-
+import AddClientList from './pages/AddClientList'; // Import the new page 
 function App() {
   return (
     <AuthProvider>
@@ -51,6 +51,14 @@ function App() {
               element={
                 <ProtectedRoute adminOnly={true}>
                   <AdminWhatWeOfferPage />  {/* Use the page component */}
+                </ProtectedRoute>
+              } 
+            />
+                       <Route 
+              path="/addclientlist"  // Changed from /addcategorymodal
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AddClientList />  {/* Use the page component */}
                 </ProtectedRoute>
               } 
             />

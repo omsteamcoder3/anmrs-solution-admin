@@ -27,7 +27,7 @@ const Sidebar = () => {
         { path: '/adminwhatweofferpage', label: 'What We Offer', icon: Users },
     { path: '/orders', label: 'Orders', icon: ClipboardList },
     // { path: '/shiprocket', label: 'ShipRocket', icon: Rocket },
-   
+   { path: '/addclientlist', label: 'Add Client List', icon: Users },
     { path: '/customers', label: 'Customers', icon: Users },
     //  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/settings', label: 'Settings', icon: Settings },
