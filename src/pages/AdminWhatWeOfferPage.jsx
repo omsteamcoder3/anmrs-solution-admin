@@ -13,7 +13,6 @@ const AdminWhatWeOfferPage = () => {
     isActive: true
   });
 
-  // Fetch services on load
   useEffect(() => {
     fetchServices();
   }, []);
@@ -22,7 +21,7 @@ const AdminWhatWeOfferPage = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await fetch(`${import.meta.env.VITE_API_FILE_URL}/api/admin/what-we-offer`, {
+      const response = await fetch(`${import.meta.env.VITE_API_FILE_URL}/api/public/what-we-offer`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -31,9 +30,21 @@ const AdminWhatWeOfferPage = () => {
       if (!response.ok) throw new Error('Failed to fetch services');
       
       const data = await response.json();
-      if (data.success) {
-        setServices(data.data.services || []);
-        setSectionSettings(data.data.sectionSettings || {
+      console.log('Fetched data:', data);
+      
+      if (data.success && data.data) {
+        if (data.data.services && Array.isArray(data.data.services)) {
+          setServices(data.data.services);
+        } else {
+          setServices([]);
+        }
+        
+        if (data.data.sectionSettings) {
+          setSectionSettings(data.data.sectionSettings);
+        }
+      } else {
+        setServices([]);
+        setSectionSettings({
           sectionTitle: 'WHAT WE OFFER',
           sectionMainTitle: 'OUR SERVICES',
           isActive: true
@@ -42,6 +53,7 @@ const AdminWhatWeOfferPage = () => {
     } catch (error) {
       console.error('Error fetching services:', error);
       toast.error('Failed to load services');
+      setServices([]);
     } finally {
       setLoading(false);
     }
@@ -76,48 +88,75 @@ const AdminWhatWeOfferPage = () => {
   const removeService = (index) => {
     if (confirm('Are you sure you want to remove this service?')) {
       const updatedServices = services.filter((_, i) => i !== index);
-      setServices(updatedServices);
+      const reorderedServices = updatedServices.map((service, idx) => ({
+        ...service,
+        order: idx
+      }));
+      setServices(reorderedServices);
     }
   };
 
-  const handleImageUpload = async (file, index) => {
-    const formData = new FormData();
-    formData.append('images', file);
+const handleImageUpload = async (file, index) => {
+  if (!file) return;
+  
+  const formData = new FormData();
+  formData.append('images', file);
 
-    try {
-      setUploadingImages(prev => ({ ...prev, [index]: true }));
-      const token = localStorage.getItem("token");
+  try {
+    setUploadingImages(prev => ({ ...prev, [index]: true }));
+    const token = localStorage.getItem("token");
+    
+    console.log('Uploading image:', file.name);
+    
+    // CORRECTED URL - using admin endpoint
+    const uploadUrl = `${import.meta.env.VITE_API_FILE_URL}/api/admin/what-we-offer/upload-image`;
+    
+    console.log('Upload URL:', uploadUrl);
+    
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+        // Don't set Content-Type header when using FormData, let browser set it with boundary
+      },
+      body: formData
+    });
+
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('Error response:', text);
+      throw new Error(`Upload failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Upload response:', data);
+    
+    if (data.success) {
+      let imageUrl = data.data.imageUrl;
       
-      const response = await fetch(`${import.meta.env.VITE_API_FILE_URL}/api/admin/what-we-offer/upload-image`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) throw new Error('Upload failed');
-
-      const data = await response.json();
-      if (data.success) {
-        const imageUrl = data.data.imageUrl;
-        const fullImageUrl = imageUrl.startsWith('http') 
-          ? imageUrl 
-          : `${import.meta.env.VITE_API_FILE_URL}${imageUrl}`;
-        
-        const updatedServices = [...services];
-        updatedServices[index].image = fullImageUrl;
-        setServices(updatedServices);
-        toast.success('Image uploaded successfully');
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
-    } finally {
-      setUploadingImages(prev => ({ ...prev, [index]: false }));
+      // Store the URL as is - it should already be a full URL from backend
+      console.log('Image URL from server:', imageUrl);
+      
+      const updatedServices = [...services];
+      updatedServices[index] = {
+        ...updatedServices[index],
+        image: imageUrl  // Use the URL directly from server
+      };
+      setServices(updatedServices);
+      
+      toast.success('Image uploaded successfully');
+    } else {
+      throw new Error(data.message || 'Upload failed');
     }
-  };
-
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    toast.error(error.message || 'Failed to upload image');
+  } finally {
+    setUploadingImages(prev => ({ ...prev, [index]: false }));
+  }
+};
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     
@@ -137,17 +176,41 @@ const AdminWhatWeOfferPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate
+    if (services.length === 0) {
+      toast.error('Please add at least one service before saving');
+      return;
+    }
+    
+    // Validate all services have titles and descriptions
+    const invalidServices = services.filter(s => !s.title || !s.desc);
+    if (invalidServices.length > 0) {
+      toast.error('Please fill in all titles and descriptions');
+      return;
+    }
+    
     try {
       setSaving(true);
       const token = localStorage.getItem("token");
       
+      // Prepare data for saving (remove _id as it will be handled by backend)
+      const cleanedServices = services.map((service, index) => ({
+        title: service.title || '',
+        desc: service.desc || '',
+        image: service.image || '',
+        order: index
+      }));
+      
       const payload = {
-        services: services.map((service, index) => ({
-          ...service,
-          order: index
-        })),
-        sectionSettings
+        services: cleanedServices,
+        sectionSettings: {
+          sectionTitle: sectionSettings.sectionTitle || 'WHAT WE OFFER',
+          sectionMainTitle: sectionSettings.sectionMainTitle || 'OUR SERVICES',
+          isActive: sectionSettings.isActive !== false
+        }
       };
+      
+      console.log('Saving payload:', JSON.stringify(payload, null, 2));
       
       const response = await fetch(`${import.meta.env.VITE_API_FILE_URL}/api/admin/what-we-offer`, {
         method: 'PUT',
@@ -158,16 +221,20 @@ const AdminWhatWeOfferPage = () => {
         body: JSON.stringify(payload)
       });
 
-      if (!response.ok) throw new Error('Failed to update services');
-
       const data = await response.json();
-      if (data.success) {
-        toast.success('Services updated successfully');
-        await fetchServices();
+      console.log('Save response:', data);
+      
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update services');
       }
+      
+      toast.success('Services updated successfully');
+      // Refresh the data
+      await fetchServices();
+      
     } catch (error) {
       console.error('Error saving services:', error);
-      toast.error('Failed to save services');
+      toast.error(error.message || 'Failed to save services');
     } finally {
       setSaving(false);
     }
@@ -190,6 +257,7 @@ const AdminWhatWeOfferPage = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">What We Offer Management</h1>
           <p className="text-gray-600 mt-2">Manage the services and features displayed in the what we offer section</p>
+          <p className="text-sm text-green-600 mt-1">✓ {services.length} service(s) loaded from database</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -208,7 +276,7 @@ const AdminWhatWeOfferPage = () => {
                 <input
                   type="text"
                   name="sectionTitle"
-                  value={sectionSettings.sectionTitle}
+                  value={sectionSettings.sectionTitle || ''}
                   onChange={handleSectionSettingChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder="WHAT WE OFFER"
@@ -222,7 +290,7 @@ const AdminWhatWeOfferPage = () => {
                 <input
                   type="text"
                   name="sectionMainTitle"
-                  value={sectionSettings.sectionMainTitle}
+                  value={sectionSettings.sectionMainTitle || ''}
                   onChange={handleSectionSettingChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder="OUR SERVICES"
@@ -233,7 +301,7 @@ const AdminWhatWeOfferPage = () => {
                 <input
                   type="checkbox"
                   name="isActive"
-                  checked={sectionSettings.isActive}
+                  checked={sectionSettings.isActive === true}
                   onChange={handleSectionSettingChange}
                   className="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                 />
@@ -250,7 +318,7 @@ const AdminWhatWeOfferPage = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-xl font-semibold text-gray-800">Services</h2>
-                  <p className="text-sm text-gray-600 mt-1">Manage your services (drag to reorder)</p>
+                  <p className="text-sm text-gray-600 mt-1">Manage your services (drag to reorder) - {services.length} item(s)</p>
                 </div>
                 <button
                   type="button"
@@ -268,7 +336,11 @@ const AdminWhatWeOfferPage = () => {
                   {(provided) => (
                     <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
                       {services.map((service, index) => (
-                        <Draggable key={index} draggableId={`service-${index}`} index={index}>
+                        <Draggable 
+                          key={service._id || `service-${index}`} 
+                          draggableId={String(service._id || `service-${index}`)} 
+                          index={index}
+                        >
                           {(provided) => (
                             <div
                               ref={provided.innerRef}
@@ -293,7 +365,7 @@ const AdminWhatWeOfferPage = () => {
                                       </label>
                                       <input
                                         type="text"
-                                        value={service.title}
+                                        value={service.title || ''}
                                         onChange={(e) => handleServiceChange(index, 'title', e.target.value)}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                         placeholder="e.g., ID Card Manufacturing"
@@ -305,7 +377,7 @@ const AdminWhatWeOfferPage = () => {
                                         Description
                                       </label>
                                       <textarea
-                                        value={service.desc}
+                                        value={service.desc || ''}
                                         onChange={(e) => handleServiceChange(index, 'desc', e.target.value)}
                                         rows={3}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
@@ -319,29 +391,40 @@ const AdminWhatWeOfferPage = () => {
                                       </label>
                                       <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-orange-400 transition-colors duration-300">
                                         <div className="space-y-1 text-center">
-                                          {service.image ? (
-                                            <div className="mb-4">
-                                              <img
-                                                src={service.image}
-                                                alt={service.title}
-                                                className="mx-auto h-32 w-32 object-cover rounded-lg shadow-md"
-                                                onError={(e) => {
-                                                  e.target.src = 'https://via.placeholder.com/128x128?text=No+Image';
-                                                }}
-                                              />
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  const updatedServices = [...services];
-                                                  updatedServices[index].image = '';
-                                                  setServices(updatedServices);
-                                                }}
-                                                className="mt-2 text-sm text-red-600 hover:text-red-700"
-                                              >
-                                                Remove Image
-                                              </button>
-                                            </div>
-                                          ) : (
+                                        {service.image ? (
+  <div className="mb-4">
+    <img
+      src={service.image}
+      alt={service.title || 'Service image'}
+      className="mx-auto h-32 w-32 object-cover rounded-lg shadow-md"
+      onError={(e) => {
+        console.error('Image failed to load:', service.image);
+        // Try alternative URL if needed
+        const altUrl = `${import.meta.env.VITE_API_FILE_URL}${service.image}`;
+        if (e.target.src !== altUrl && !service.image.startsWith('http')) {
+          e.target.src = altUrl;
+        } else {
+          e.target.src = 'https://via.placeholder.com/128x128?text=No+Image';
+        }
+      }}
+    />
+    <button
+      type="button"
+      onClick={() => {
+        const updatedServices = [...services];
+        updatedServices[index] = {
+          ...updatedServices[index],
+          image: ''
+        };
+        setServices(updatedServices);
+        toast.success('Image removed');
+      }}
+      className="mt-2 text-sm text-red-600 hover:text-red-700"
+    >
+      Remove Image
+    </button>
+  </div>
+) : (
                                             <svg
                                               className="mx-auto h-12 w-12 text-gray-400"
                                               stroke="currentColor"
@@ -374,6 +457,8 @@ const AdminWhatWeOfferPage = () => {
                                                   if (file) {
                                                     handleImageUpload(file, index);
                                                   }
+                                                  // Reset the input value so the same file can be uploaded again
+                                                  e.target.value = '';
                                                 }}
                                                 disabled={uploadingImages[index]}
                                               />
