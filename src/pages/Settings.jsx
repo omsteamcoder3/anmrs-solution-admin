@@ -72,6 +72,7 @@ const Settings = () => {
     callNumber: '',
     contactEmail: '',
     companyAddress: '',
+     businessHours: 'Mon–Fri · 9AM–6PM',
     siteName: '',
     siteTitle: '',
     siteDescription: '',
@@ -1059,7 +1060,23 @@ const Settings = () => {
                             placeholder="+91 1234567890"
                           />
                         </div>
-                        
+                         <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          <Clock size={14} className="inline mr-1" />
+          Business Hours
+        </label>
+        <input
+          type="text"
+          name="businessHours"
+          value={settings.businessHours}
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Mon–Fri · 9AM–6PM"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Display your business operating hours (e.g., Mon–Fri · 9AM–6PM)
+        </p>
+      </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             <MessageCircle size={14} className="inline mr-1" />
