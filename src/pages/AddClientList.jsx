@@ -443,7 +443,7 @@ const getImageUrl = (imagePath) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {clients.map((client) => (
                 <div
-                  key={client.id}
+                  key={client._id}
                   className="bg-gray-50 rounded-xl p-4 hover:shadow-lg transition-shadow border border-gray-200"
                 >
                   <div className="flex items-center gap-4">
@@ -481,7 +481,7 @@ const getImageUrl = (imagePath) => {
                         </svg>
                       </button>
                       <button
-                        onClick={() => handleDeleteClient(client.id)}
+                        onClick={() => handleDeleteClient(client._id)}
                         className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
                         title="Delete client"
                       >
