@@ -116,11 +116,10 @@ const AdminAboutPage = () => {
       if (!response.ok) throw new Error('Upload failed');
 
       const data = await response.json();
-      if (data.success) {
-        // Return the image URL from server
-        const imageUrl = data.data.imageUrl;
-        return imageUrl.startsWith('http') ? imageUrl : `${import.meta.env.VITE_API_FILE_URL}${imageUrl}`;
-      }
+if (data.success) {
+  // RETURN ONLY RELATIVE PATH
+  return data.data.imageUrl;
+}
       throw new Error('Upload response indicated failure');
     } catch (error) {
       console.error(`Error uploading ${type} image:`, error);
