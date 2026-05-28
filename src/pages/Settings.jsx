@@ -37,7 +37,6 @@ import {
   ShieldAlert,
   MessageCircle,
   PhoneCall,
-  Youtube,
   Lock as LockIcon,
   Building,
   UserCircle,
