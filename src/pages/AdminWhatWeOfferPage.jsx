@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
+import Sidebar from '../components/Sidebar';
 const AdminWhatWeOfferPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -252,13 +252,16 @@ const handleImageUpload = async (file, index) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">What We Offer Management</h1>
-          <p className="text-gray-600 mt-2">Manage the services and features displayed in the what we offer section</p>
-          <p className="text-sm text-green-600 mt-1">✓ {services.length} service(s) loaded from database</p>
-        </div>
+   <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
+      <div className="flex-1 overflow-y-auto">
+        <div className="py-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900">What We Offer Management</h1>
+              <p className="text-gray-600 mt-2">Manage the services and features displayed in the what we offer section</p>
+              <p className="text-sm text-green-600 mt-1">✓ {services.length} service(s) loaded from database</p>
+            </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Section Settings */}
@@ -534,6 +537,8 @@ const handleImageUpload = async (file, index) => {
           </div>
         </form>
       </div>
+    </div>
+    </div>
     </div>
   );
 };
