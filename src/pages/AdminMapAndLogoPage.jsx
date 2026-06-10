@@ -102,6 +102,7 @@ const AdminMapAndLogoPage = () => {
 
   const deleteLogo = async () => {
     try {
+      console.log(document.querySelector('input[name="mapEmbedUrl"]').value);
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_BASE_URL}/api/admin/map-logo/logo`, {
         method: 'DELETE',
