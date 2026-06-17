@@ -16,6 +16,7 @@ import AdminAboutPage from './pages/AdminAboutPage';
 import AdminWhatWeOfferPage from './pages/AdminWhatWeOfferPage'; // Import the new page
 import AddClientList from './pages/AddClientList'; // Import the new page 
 import AdminMapAndLogoPage from './pages/AdminMapAndLogoPage';
+import AdminDesignOrdersPage from './pages/DesignOrdersPage';
 function App() {
   return (
     <AuthProvider>
@@ -60,6 +61,14 @@ function App() {
               element={
                 <ProtectedRoute adminOnly={true}>
                   <AdminWhatWeOfferPage />  {/* Use the page component */}
+                </ProtectedRoute>
+              } 
+            />
+                 <Route 
+              path="/designorderspage"  // Changed from /addcategorymodal
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDesignOrdersPage />  {/* Use the page component */}
                 </ProtectedRoute>
               } 
             />

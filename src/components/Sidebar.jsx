@@ -26,6 +26,7 @@ const Sidebar = () => {
     {path: '/adminaboutpage', label: 'About Page', icon: Users},
         { path: '/adminwhatweofferpage', label: 'What We Offer', icon: Users },
         { path: '/adminmapandlogo', label: 'Map and Logo', icon: Users },
+        { path: '/designorderspage', label: 'Design Order List', icon: ClipboardList},
     { path: '/orders', label: 'Orders', icon: ClipboardList },
     // { path: '/shiprocket', label: 'ShipRocket', icon: Rocket },
    { path: '/addclientlist', label: 'Add Client List', icon: Users },
