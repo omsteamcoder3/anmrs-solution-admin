@@ -527,165 +527,219 @@ export default function AdminDesignOrdersPage() {
   };
 
   // ==================== WORKFLOW RENDERER ====================
-  const renderWorkflow = (order: DesignOrder) => {
-    const isPickup = order.deliveryMethod === 'pickup';
-    const isRazorpay = order.paymentMethod === 'razorpay';
-    const isPaid = order.paymentStatus === 'paid';
+// ==================== WORKFLOW RENDERER ====================
+const renderWorkflow = (order: DesignOrder) => {
+  const isPickup = order.deliveryMethod === 'pickup';
+  const isRazorpay = order.paymentMethod === 'razorpay';
+  const isPaid = order.paymentStatus === 'paid';
+  
+  let steps: { 
+    id: string; 
+    label: string; 
+    icon: React.ReactNode; 
+    color: 'orange' | 'green' | 'blue' | 'purple' | 'emerald' | 'indigo';
+    status: string;
+    isPaymentStep?: boolean;
+  }[] = [];
+  
+  if (isPickup && !isRazorpay) {
+    steps = [
+      { id: 'placed', label: 'Placed', icon: <ShoppingBag size={22} />, color: 'orange', status: 'pending' },
+      { id: 'process', label: 'Process', icon: <Settings size={22} />, color: 'blue', status: 'in_process' },
+      { id: 'pickup', label: 'Pickup', icon: <PackageCheck size={22} />, color: 'green', status: 'ready_for_pickup' },
+      { id: 'paid', label: 'Paid', icon: <DollarSignIcon size={22} />, color: 'emerald', status: 'completed' },
+    ];
+  } else if (isPickup && isRazorpay) {
+    steps = [
+      { id: 'placed', label: 'Placed', icon: <ShoppingBag size={22} />, color: 'orange', status: 'pending', isPaymentStep: false },
+      { id: 'payment', label: 'Payment', icon: <CreditCardIcon size={22} />, color: 'purple', status: 'payment_pending', isPaymentStep: true },
+      { id: 'process', label: 'Process', icon: <Settings size={22} />, color: 'blue', status: 'in_process', isPaymentStep: false },
+      { id: 'pickup', label: 'Pickup', icon: <PackageCheck size={22} />, color: 'green', status: 'ready_for_pickup', isPaymentStep: false },
+      { id: 'done', label: 'Done', icon: <CheckSquare size={22} />, color: 'emerald', status: 'completed', isPaymentStep: false },
+    ];
+  } else if (!isPickup && !isRazorpay) {
+    steps = [
+      { id: 'placed', label: 'Placed', icon: <ShoppingBag size={22} />, color: 'orange', status: 'pending' },
+      { id: 'process', label: 'Process', icon: <Settings size={22} />, color: 'blue', status: 'in_process' },
+      { id: 'transit', label: 'Transit', icon: <TruckIcon size={22} />, color: 'indigo', status: 'out_for_delivery' },
+      { id: 'paid', label: 'Paid', icon: <DollarSignIcon size={22} />, color: 'emerald', status: 'completed' },
+    ];
+  } else {
+    steps = [
+      { id: 'placed', label: 'Placed', icon: <ShoppingBag size={22} />, color: 'orange', status: 'pending', isPaymentStep: false },
+      { id: 'payment', label: 'Payment', icon: <CreditCardIcon size={22} />, color: 'purple', status: 'payment_pending', isPaymentStep: true },
+      { id: 'process', label: 'Process', icon: <Settings size={22} />, color: 'blue', status: 'in_process', isPaymentStep: false },
+      { id: 'transit', label: 'Transit', icon: <TruckIcon size={22} />, color: 'indigo', status: 'out_for_delivery', isPaymentStep: false },
+      { id: 'done', label: 'Done', icon: <CheckSquare size={22} />, color: 'emerald', status: 'completed', isPaymentStep: false },
+    ];
+  }
+
+  const orderStatus = order.status;
+  
+  // Determine the current step index - FIXED
+  let currentStepIndex = 0;
+  
+  // For Razorpay orders with payment completed
+  if (isRazorpay && isPaid && orderStatus === 'pending') {
+    // Payment is done, current step should be "Process"
+    const processIdx = steps.findIndex(s => s.status === 'in_process');
+    currentStepIndex = processIdx !== -1 ? processIdx : 2;
+  } 
+  // For Razorpay orders with payment NOT completed (PENDING)
+  else if (isRazorpay && !isPaid && orderStatus === 'pending') {
+    // Current step should be "Payment" (index 1)
+    const paymentIdx = steps.findIndex(s => s.isPaymentStep === true);
+    currentStepIndex = paymentIdx !== -1 ? paymentIdx : 1;
+  }
+  // For non-Razorpay or COD orders
+  else if (orderStatus === 'pending') {
+    currentStepIndex = 0;
+  } else if (orderStatus === 'in_process') {
+    const processIdx = steps.findIndex(s => s.status === 'in_process');
+    currentStepIndex = processIdx !== -1 ? processIdx : 1;
+  } else if (orderStatus === 'ready_for_pickup') {
+    const pickupIdx = steps.findIndex(s => s.status === 'ready_for_pickup');
+    currentStepIndex = pickupIdx !== -1 ? pickupIdx : 2;
+  } else if (orderStatus === 'out_for_delivery') {
+    const transitIdx = steps.findIndex(s => s.status === 'out_for_delivery');
+    currentStepIndex = transitIdx !== -1 ? transitIdx : 2;
+  } else if (orderStatus === 'completed') {
+    currentStepIndex = steps.length - 1;
+  }
+
+  const isStepCompleted = (stepIndex: number) => {
+    if (orderStatus === 'completed') return true;
     
-    let steps: { 
-      id: string; 
-      label: string; 
-      icon: React.ReactNode; 
-      color: 'orange' | 'green' | 'blue' | 'purple' | 'emerald' | 'indigo';
-      status: string;
-    }[] = [];
+    const step = steps[stepIndex];
     
-    if (isPickup && !isRazorpay) {
-      steps = [
-        { id: 'placed', label: 'Placed', icon: <ShoppingBag size={22} />, color: 'orange', status: 'pending' },
-        { id: 'process', label: 'Process', icon: <Settings size={22} />, color: 'blue', status: 'in_process' },
-        { id: 'pickup', label: 'Pickup', icon: <PackageCheck size={22} />, color: 'green', status: 'ready_for_pickup' },
-        { id: 'paid', label: 'Paid', icon: <DollarSignIcon size={22} />, color: 'emerald', status: 'completed' },
-      ];
-    } else if (isPickup && isRazorpay) {
-      steps = [
-        { id: 'placed', label: 'Placed', icon: <ShoppingBag size={22} />, color: 'orange', status: 'pending' },
-        { id: 'payment', label: 'Payment', icon: <CreditCardIcon size={22} />, color: 'purple', status: 'pending' },
-        { id: 'process', label: 'Process', icon: <Settings size={22} />, color: 'blue', status: 'in_process' },
-        { id: 'pickup', label: 'Pickup', icon: <PackageCheck size={22} />, color: 'green', status: 'ready_for_pickup' },
-        { id: 'done', label: 'Done', icon: <CheckSquare size={22} />, color: 'emerald', status: 'completed' },
-      ];
-    } else if (!isPickup && !isRazorpay) {
-      steps = [
-        { id: 'placed', label: 'Placed', icon: <ShoppingBag size={22} />, color: 'orange', status: 'pending' },
-        { id: 'process', label: 'Process', icon: <Settings size={22} />, color: 'blue', status: 'in_process' },
-        { id: 'transit', label: 'Transit', icon: <TruckIcon size={22} />, color: 'indigo', status: 'out_for_delivery' },
-        { id: 'paid', label: 'Paid', icon: <DollarSignIcon size={22} />, color: 'emerald', status: 'completed' },
-      ];
-    } else {
-      steps = [
-        { id: 'placed', label: 'Placed', icon: <ShoppingBag size={22} />, color: 'orange', status: 'pending' },
-        { id: 'payment', label: 'Payment', icon: <CreditCardIcon size={22} />, color: 'purple', status: 'pending' },
-        { id: 'process', label: 'Process', icon: <Settings size={22} />, color: 'blue', status: 'in_process' },
-        { id: 'transit', label: 'Transit', icon: <TruckIcon size={22} />, color: 'indigo', status: 'out_for_delivery' },
-        { id: 'done', label: 'Done', icon: <CheckSquare size={22} />, color: 'emerald', status: 'completed' },
-      ];
+    // Payment step is completed if payment is paid
+    if (step.isPaymentStep) {
+      return isPaid;
     }
-
-    const orderStatus = order.status;
-    let currentStepIndex = 0;
-    let foundActive = false;
     
-    for (let i = 0; i < steps.length; i++) {
-      const step = steps[i];
-      if (step.status === orderStatus) {
-        currentStepIndex = i;
-        foundActive = true;
-        break;
+    // For placed step, it's completed if:
+    // - We're past it (stepIndex < currentStepIndex)
+    // OR - For Razorpay, it's completed when payment is done
+    if (stepIndex === 0) {
+      if (isRazorpay && isPaid && orderStatus === 'pending') {
+        return true; // Placed is completed when payment is done
       }
-      if (orderStatus === 'completed') {
-        currentStepIndex = steps.length - 1;
-        foundActive = true;
-        break;
-      }
+      return stepIndex < currentStepIndex;
     }
     
-    if (!foundActive) {
-      if (orderStatus === 'pending') currentStepIndex = 0;
-      else if (orderStatus === 'in_process') {
-        const processIdx = steps.findIndex(s => s.status === 'in_process');
-        currentStepIndex = processIdx !== -1 ? processIdx : 1;
-      } else if (orderStatus === 'ready_for_pickup') {
-        const pickupIdx = steps.findIndex(s => s.status === 'ready_for_pickup');
-        currentStepIndex = pickupIdx !== -1 ? pickupIdx : 2;
-      } else if (orderStatus === 'out_for_delivery') {
-        const transitIdx = steps.findIndex(s => s.status === 'out_for_delivery');
-        currentStepIndex = transitIdx !== -1 ? transitIdx : 2;
-      }
-    }
-// Add this function to your component
-
-    const isStepCompleted = (stepIndex: number) => {
-      if (orderStatus === 'completed') return true;
-      if (stepIndex < currentStepIndex) return true;
-      if (steps[stepIndex]?.status === 'payment_pending' && isPaid) return true;
-      return false;
-    };
-
-    const isStepActive = (stepIndex: number) => {
-      if (orderStatus === 'completed') return false;
-      return stepIndex === currentStepIndex;
-    };
-
-    return (
-      <div className="bg-slate-50/50 border border-slate-200 rounded-3xl p-8 mb-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-          <TrendingUp size={120} />
-        </div>
-        <div className="flex items-center justify-between mb-10 relative z-10">
-          <div>
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Live Tracking</h4>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-              <span className="text-sm font-bold text-slate-800">Order Progress</span>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <span className="text-[10px] font-bold bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
-              {isPickup ? <Home size={12} className="text-blue-500" /> : <Truck size={12} className="text-indigo-500" />}
-              {order.deliveryMethod.replace('_', ' ').toUpperCase()}
-            </span>
-            <span className="text-[10px] font-bold bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
-              {isRazorpay ? <CreditCardIcon size={12} className="text-purple-500" /> : <DollarSignIcon size={12} className="text-emerald-500" />}
-              {order.paymentMethod.toUpperCase()}
-            </span>
-            {!isPaid && isRazorpay && (
-              <span className="text-[10px] font-bold bg-red-100 text-red-600 border border-red-200 px-3 py-1 rounded-full shadow-sm">
-                ⚠️ Payment Pending
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center justify-between relative px-2">
-          {steps.map((step, index) => {
-            const isActive = isStepActive(index);
-            const isCompleted = isStepCompleted(index);
-            
-            return (
-              <React.Fragment key={step.id}>
-                <WorkflowStep
-                  label={step.label}
-                  icon={step.icon}
-                  color={step.color}
-                  isActive={isActive}
-                  isCompleted={isCompleted}
-                />
-                {index < steps.length - 1 && (
-                  <WorkflowConnector isCompleted={isCompleted} isActive={isActive} />
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
-        <div className="mt-8 pt-6 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-bold">
-          <div className="flex gap-4">
-            <div className="flex items-center gap-1.5 text-slate-400">
-              <div className="w-2 h-2 rounded-full bg-gray-200"></div> Upcoming
-            </div>
-            <div className="flex items-center gap-1.5 text-orange-500">
-              <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div> Active
-            </div>
-            <div className="flex items-center gap-1.5 text-orange-500">
-              <div className="w-2 h-2 rounded-full bg-orange-500"></div> Completed
-            </div>
-          </div>
-          <p className="text-slate-400 italic font-medium">Workflow progress</p>
-        </div>
-      </div>
-    );
+    return stepIndex < currentStepIndex;
   };
 
+  const isStepActive = (stepIndex: number) => {
+    if (orderStatus === 'completed') return false;
+    
+    const step = steps[stepIndex];
+    
+    // Payment step is active ONLY if:
+    // 1. It's a payment step
+    // 2. Payment is NOT paid
+    // 3. Order is pending
+    if (step.isPaymentStep) {
+      return !isPaid && orderStatus === 'pending';
+    }
+    
+    // For placed step, it's active ONLY if:
+    // 1. It's the placed step
+    // 2. Payment is NOT paid (still waiting)
+    // 3. Order is pending
+    if (stepIndex === 0 && isRazorpay) {
+      return !isPaid && orderStatus === 'pending' && currentStepIndex === stepIndex;
+    }
+    
+    // For process step, it's active if:
+    // 1. Payment is done AND order is pending
+    // 2. OR order status is in_process
+    if (step.status === 'in_process') {
+      if (isRazorpay) {
+        return (isPaid && orderStatus === 'pending') || orderStatus === 'in_process';
+      }
+      return orderStatus === 'in_process';
+    }
+    
+    // For other steps, check if it's the current step and not completed
+    return stepIndex === currentStepIndex && !isStepCompleted(stepIndex);
+  };
+
+  return (
+    <div className="bg-slate-50/50 border border-slate-200 rounded-3xl p-8 mb-6 relative overflow-hidden">
+      <div className="absolute top-0 right-0 p-8 opacity-5">
+        <TrendingUp size={120} />
+      </div>
+      <div className="flex items-center justify-between mb-10 relative z-10">
+        <div>
+          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Live Tracking</h4>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+            <span className="text-sm font-bold text-slate-800">Order Progress</span>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-[10px] font-bold bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
+            {isPickup ? <Home size={12} className="text-blue-500" /> : <Truck size={12} className="text-indigo-500" />}
+            {order.deliveryMethod.replace('_', ' ').toUpperCase()}
+          </span>
+          <span className="text-[10px] font-bold bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
+            {isRazorpay ? <CreditCardIcon size={12} className="text-purple-500" /> : <DollarSignIcon size={12} className="text-emerald-500" />}
+            {order.paymentMethod.toUpperCase()}
+          </span>
+          {!isPaid && isRazorpay && (
+            <span className="text-[10px] font-bold bg-red-100 text-red-600 border border-red-200 px-3 py-1 rounded-full shadow-sm">
+              ⚠️ Payment Pending
+            </span>
+          )}
+          {isPaid && isRazorpay && orderStatus === 'pending' && (
+            <span className="text-[10px] font-bold bg-green-100 text-green-600 border border-green-200 px-3 py-1 rounded-full shadow-sm">
+              ✅ Payment Done - Ready to Process
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center justify-between relative px-2">
+        {steps.map((step, index) => {
+          const isActive = isStepActive(index);
+          const isCompleted = isStepCompleted(index);
+          
+          return (
+            <React.Fragment key={step.id}>
+              <WorkflowStep
+                label={step.label}
+                icon={step.icon}
+                color={step.color}
+                isActive={isActive}
+                isCompleted={isCompleted}
+              />
+              {index < steps.length - 1 && (
+                <WorkflowConnector isCompleted={isCompleted} isActive={isActive} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+      <div className="mt-8 pt-6 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-bold">
+        <div className="flex gap-4">
+          <div className="flex items-center gap-1.5 text-slate-400">
+            <div className="w-2 h-2 rounded-full bg-gray-200"></div> Upcoming
+          </div>
+          <div className="flex items-center gap-1.5 text-orange-500">
+            <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div> Active
+          </div>
+          <div className="flex items-center gap-1.5 text-orange-500">
+            <div className="w-2 h-2 rounded-full bg-orange-500"></div> Completed
+          </div>
+        </div>
+        <p className="text-slate-400 italic font-medium">Workflow progress</p>
+      </div>
+    </div>
+  );
+};
+
   // ==================== ACTION BUTTONS SECTION ====================
+// ==================== ACTION BUTTONS SECTION ====================
 const renderActionButtons = (order: DesignOrder) => {
   const isPickup = order.deliveryMethod === 'pickup';
   const isRazorpay = order.paymentMethod === 'razorpay';
@@ -694,146 +748,216 @@ const renderActionButtons = (order: DesignOrder) => {
   
   // Check if prices are set (greater than 0)
   const hasPricesSet = (order.productPrice || 0) > 0 && (order.deliveryCharge || 0) >= 0;
-const hasTotalPrice = Number(order.totalPrice || 0) > 0;
+  const hasTotalPrice = Number(order.totalPrice || 0) > 0;
   const pricesConfigured = hasPricesSet || hasTotalPrice;
-    const checkRazorpayPaymentStatus = async (orderId: string) => {
-  try {
-    setIsProcessingAction(true);
-    const token = localStorage.getItem('token');
-    
-    // First, get the payment status from your backend
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/design-orders/payment-status/${orderId}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
+  
+  const checkRazorpayPaymentStatus = async (orderId: string) => {
+    try {
+      setIsProcessingAction(true);
+      const token = localStorage.getItem('token');
       
-      if (data.paymentStatus === 'paid') {
-        alert('✅ Payment is already marked as PAID!');
-        await fetchOrders();
-        if (selectedOrder) {
-          const updatedOrder = orders.find(o => o._id === orderId);
-          if (updatedOrder) {
-            setSelectedOrder({ ...updatedOrder, paymentStatus: 'paid' });
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/design-orders/payment-status/${orderId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.paymentStatus === 'paid') {
+          alert('✅ Payment is already marked as PAID!');
+          await fetchOrders();
+          if (selectedOrder) {
+            const updatedOrder = orders.find(o => o._id === orderId);
+            if (updatedOrder) {
+              setSelectedOrder({ ...updatedOrder, paymentStatus: 'paid' });
+            }
+          }
+        } else {
+          const checkResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/design-orders/check-razorpay-payment/${orderId}`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const checkData = await checkResponse.json();
+          
+          if (checkData.success && checkData.paymentStatus === 'captured') {
+            alert('✅ Payment found on Razorpay! Marking as PAID...');
+            await markPaymentPaid(orderId);
+          } else {
+            alert('⏳ Payment not found on Razorpay. Please wait or contact customer.');
           }
         }
-      } else {
-        // If still pending, check with Razorpay API
-        const checkResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/design-orders/check-razorpay-payment/${orderId}`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const checkData = await checkResponse.json();
-        
-        if (checkData.success && checkData.paymentStatus === 'captured') {
-          alert('✅ Payment found on Razorpay! Marking as PAID...');
-          // Mark as paid
-          await markPaymentPaid(orderId);
-        } else {
-          alert('⏳ Payment not found on Razorpay. Please wait or contact customer.');
-        }
       }
+    } catch (error) {
+      console.error('Error checking payment:', error);
+      alert('Failed to check payment status');
+    } finally {
+      setIsProcessingAction(false);
     }
-  } catch (error) {
-    console.error('Error checking payment:', error);
-    alert('Failed to check payment status');
-  } finally {
-    setIsProcessingAction(false);
-  }
-};
-    // Determine what actions are available based on current status
-const getAvailableActions = () => {
-  const actions = [];
+  };
   
-  // ✅ ONLY ONE PLACE for all actions
-  if (pricesConfigured) {
-    if (isRazorpay && !isPaid && status === 'pending') {
-      actions.push({
-        id: 'send_payment',
-        label: '📧 Send Payment Link',
-        description: 'Send Razorpay payment link to customer',
-        action: () => sendPaymentReminder(order._id),
-        priority: 1
-      });
-      actions.push({
-        id: 'check_payment',
-        label: '🔄 Check Payment Status',
-        description: 'Check if customer has paid via Razorpay',
-        action: () => checkRazorpayPaymentStatus(order._id),
-        priority: 2
-      });
-      actions.push({
-        id: 'mark_paid',
-        label: '✅ Mark Payment as Paid',
-        description: 'Manually mark payment as received',
-        action: () => { if (confirm('Mark payment as paid?')) markPaymentPaid(order._id); },
-        priority: 3
-      });
-    }
+  // Determine what actions are available based on current status
+  const getAvailableActions = () => {
+    const actions = [];
     
-    if (!isRazorpay && !isPaid && status === 'pending') {
+    // ============================================
+    // COD PAYMENT BUTTON - ALWAYS AVAILABLE for COD orders
+    // ============================================
+    if (!isRazorpay && !isPaid) {
+      // COD payment button is always visible for COD orders
+      let priority = 1;
+      let label = '✅ Mark COD as Paid';
+      let description = 'Mark Cash on Delivery as paid';
+      
+      // Adjust label based on status
+      if (status === 'pending') {
+        label = '✅ Mark COD as Paid (Before Processing)';
+        description = 'Customer paid at order placement. Mark as paid to proceed.';
+        priority = 1;
+      } else if (status === 'in_process') {
+        label = '✅ Mark COD as Paid (During Processing)';
+        description = 'Customer paid while order is being processed.';
+        priority = 3;
+      } else if (status === 'ready_for_pickup' || status === 'out_for_delivery') {
+        label = '💰 Mark COD as Paid (After Delivery)';
+        description = 'Customer paid after receiving the order. Mark as paid to complete.';
+        priority = 5;
+      } else if (status === 'completed') {
+        label = '💰 Mark COD as Paid (Complete Order)';
+        description = 'Customer paid after order completion. Mark as paid.';
+        priority = 6;
+      }
+      
       actions.push({
         id: 'mark_cod_paid',
-        label: '✅ Mark COD as Paid',
-        description: 'Mark Cash on Delivery as paid',
-        action: () => { if (confirm('Mark COD payment as paid?')) markCODPaid(order._id); },
-        priority: 1
+        label: label,
+        description: description,
+        action: () => { 
+          if (confirm(`Mark COD payment as paid? This will update the payment status to PAID.`)) {
+            markCODPaid(order._id);
+          }
+        },
+        priority: priority
       });
     }
     
-    if ((isPaid || !isRazorpay) && status === 'pending') {
+    // ============================================
+    // RAZORPAY PAYMENT ACTIONS
+    // ============================================
+    if (pricesConfigured) {
+      if (isRazorpay && !isPaid && status === 'pending') {
+        actions.push({
+          id: 'send_payment',
+          label: '📧 Send Payment Link',
+          description: 'Send Razorpay payment link to customer',
+          action: () => sendPaymentReminder(order._id),
+          priority: 1
+        });
+        actions.push({
+          id: 'check_payment',
+          label: '🔄 Check Payment Status',
+          description: 'Check if customer has paid via Razorpay',
+          action: () => checkRazorpayPaymentStatus(order._id),
+          priority: 2
+        });
+        actions.push({
+          id: 'mark_paid',
+          label: '✅ Mark Payment as Paid',
+          description: 'Manually mark Razorpay payment as received',
+          action: () => { if (confirm('Mark payment as paid?')) markPaymentPaid(order._id); },
+          priority: 3
+        });
+      }
+      
+      // Processing action - only if payment is confirmed
+      if ((isPaid || !isRazorpay) && status === 'pending') {
+        actions.push({
+          id: 'start_processing',
+          label: '🚀 Start Processing',
+          description: 'Send "Processing Started" email to customer',
+          action: () => sendProcessingEmail(order._id),
+          priority: 4
+        });
+      }
+    }
+    
+    // ============================================
+    // PICKUP / DELIVERY ACTIONS
+    // ============================================
+    if (status === 'in_process' && isPickup) {
       actions.push({
-        id: 'start_processing',
-        label: '🚀 Start Processing',
-        description: 'Send "Processing Started" email to customer',
-        action: () => sendProcessingEmail(order._id),
-        priority: 4
+        id: 'send_pickup',
+        label: '📦 Ready for Pickup',
+        description: 'Send pickup notification to customer',
+        action: () => sendPickupEmail(order._id),
+        priority: 6
       });
     }
-  }
-  
-  if (status === 'in_process' && isPickup) {
-    actions.push({
-      id: 'send_pickup',
-      label: '📦 Ready for Pickup',
-      description: 'Send pickup notification to customer',
-      action: () => sendPickupEmail(order._id),
-      priority: 5
-    });
-  }
-  
-  if (status === 'in_process' && !isPickup) {
-    actions.push({
-      id: 'send_delivery',
-      label: '🚚 Out for Delivery',
-      description: 'Send delivery notification with date/time',
-      action: () => sendDeliveryEmail(order._id),
-      priority: 5
-    });
-  }
-  
-  return actions.sort((a, b) => a.priority - b.priority);
-};
-  
-    const availableActions = getAvailableActions();
     
-    // Get current step guideline
-   // Get current step guideline
+    if (status === 'in_process' && !isPickup) {
+      actions.push({
+        id: 'send_delivery',
+        label: '🚚 Out for Delivery',
+        description: 'Send delivery notification with date/time',
+        action: () => sendDeliveryEmail(order._id),
+        priority: 6
+      });
+    }
+    
+    // ============================================
+    // MARK AS COMPLETED
+    // ============================================
+    if (status === 'ready_for_pickup' || status === 'out_for_delivery') {
+      actions.push({
+        id: 'mark_completed',
+        label: '✅ Mark as Completed',
+        description: 'Order has been delivered/picked up. Mark as completed.',
+        action: () => {
+          if (confirm('Has this order been successfully delivered/picked up?')) {
+            updateOrderStatus(order._id, 'completed');
+          }
+        },
+        priority: 7
+      });
+    }
+    
+    return actions.sort((a, b) => a.priority - b.priority);
+  };
+  
+  const availableActions = getAvailableActions();
+  
+  // Get current step guideline
   const getGuideline = () => {
     // PRIORITY 1: Price not set - show price setup guideline FIRST
-
-if (!pricesConfigured && status === 'pending') {
-  return {
-    title: '💰 Set Product Price First',
-    description: 'Please set the product price and delivery charge in the "Payment & Price" section on the right side before sending payment links.',
-    icon: <DollarSign size={20} className="text-orange-500" />,
-    isPriceRequired: true,
-    // Add this line to show total amount if available
-    totalAmount: order.totalPrice || 0
-  };
-}
-    // PRIORITY 2: Price set, check payment status
+    if (!pricesConfigured && status === 'pending') {
+      return {
+        title: '💰 Set Product Price First',
+        description: 'Please set the product price and delivery charge in the "Payment & Price" section on the right side before proceeding.',
+        icon: <DollarSign size={20} className="text-orange-500" />,
+        isPriceRequired: true,
+        totalAmount: order.totalPrice || 0
+      };
+    }
+    
+    // PRIORITY 2: COD Payment pending
+    if (!isRazorpay && !isPaid) {
+      let description = `Total amount: ₹${order.totalPrice || 0}. Mark COD as paid when cash is collected.`;
+      if (status === 'pending') {
+        description = `Total amount: ₹${order.totalPrice || 0}. Customer has placed COD order. Mark as paid to start processing.`;
+      } else if (status === 'in_process') {
+        description = `Total amount: ₹${order.totalPrice || 0}. Order is being processed. Mark COD as paid when customer pays.`;
+      } else if (status === 'ready_for_pickup' || status === 'out_for_delivery') {
+        description = `Total amount: ₹${order.totalPrice || 0}. Order is ready for pickup/delivery. Mark COD as paid after collecting payment.`;
+      }
+      
+      return {
+        title: '💰 COD Payment Pending',
+        description: description,
+        icon: <DollarSignIcon size={20} className="text-emerald-500" />,
+        isPriceRequired: false
+      };
+    }
+    
+    // PRIORITY 3: Razorpay payment pending
     if (isRazorpay && !isPaid && status === 'pending') {
       return {
         title: '💳 Payment Pending',
@@ -843,15 +967,7 @@ if (!pricesConfigured && status === 'pending') {
       };
     }
     
-    if (!isRazorpay && !isPaid && status === 'pending') {
-      return {
-        title: '💰 COD Payment Pending',
-        description: `Total amount: ₹${order.totalPrice || 0}. Mark COD as paid when cash is collected.`,
-        icon: <DollarSignIcon size={20} className="text-emerald-500" />,
-        isPriceRequired: false
-      };
-    }
-    
+    // PRIORITY 4: Ready to Process
     if ((isPaid || !isRazorpay) && status === 'pending') {
       return {
         title: '🎨 Ready to Process',
@@ -861,6 +977,7 @@ if (!pricesConfigured && status === 'pending') {
       };
     }
     
+    // PRIORITY 5: In Process - Pickup
     if (status === 'in_process' && isPickup) {
       return {
         title: '📦 Ready for Pickup',
@@ -870,6 +987,7 @@ if (!pricesConfigured && status === 'pending') {
       };
     }
     
+    // PRIORITY 6: In Process - Delivery
     if (status === 'in_process' && !isPickup) {
       return {
         title: '🚚 Ready for Delivery',
@@ -879,6 +997,7 @@ if (!pricesConfigured && status === 'pending') {
       };
     }
     
+    // PRIORITY 7: Almost Done
     if (status === 'ready_for_pickup' || status === 'out_for_delivery') {
       return {
         title: '✅ Almost Done',
@@ -888,6 +1007,7 @@ if (!pricesConfigured && status === 'pending') {
       };
     }
     
+    // PRIORITY 8: Completed
     if (status === 'completed') {
       return {
         title: '🎉 Order Completed',
@@ -907,73 +1027,101 @@ if (!pricesConfigured && status === 'pending') {
   
   const guideline = getGuideline();
 
-    return (
-      <div className="bg-white border border-slate-200 rounded-[2rem] p-7 shadow-sm">
-        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-          <Send size={16} className="text-orange-500" /> 
-          Action Center
-        </h3>
-        
-        {/* Guideline */}
-        <div className="bg-slate-50 rounded-2xl p-4 mb-6 border border-slate-100">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5">{guideline.icon}</div>
-            <div>
-              <p className="text-sm font-bold text-slate-800">{guideline.title}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{guideline.description}</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Action Buttons */}
-        {availableActions.length > 0 ? (
-          <div className="space-y-2">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Available Actions</p>
-            {availableActions.map((action) => (
-              <button
-                key={action.id}
-                onClick={action.action}
-                disabled={isProcessingAction}
-                className="w-full flex items-center justify-between px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl transition-all group disabled:opacity-50"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-sm">{action.label}</span>
-                </div>
-                <ArrowRight size={16} className="text-orange-500 group-hover:translate-x-1 transition-transform" />
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-6">
-            <div className="text-4xl mb-2">✅</div>
-            <p className="text-sm font-bold text-slate-600">No actions available</p>
-            <p className="text-xs text-slate-400">All steps are completed</p>
-          </div>
-        )}
-        
-        {/* Quick Status Update */}
-        <div className="mt-6 pt-6 border-t border-slate-100">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Quick Status Update</p>
-          <div className="grid grid-cols-3 gap-2">
-            {['pending', 'approved', 'completed'].map((s) => (
-              <button
-                key={s}
-                onClick={() => updateOrderStatus(order._id, s)}
-                disabled={isProcessingAction}
-                className={`px-2 py-2 rounded-xl text-[9px] font-black transition-all border ${
-                  order.status === s 
-                    ? 'bg-slate-900 text-white border-slate-900' 
-                    : 'bg-white border-slate-200 text-slate-600 hover:border-orange-500 hover:bg-orange-50'
-                }`}
-              >
-                {s.toUpperCase()}
-              </button>
-            ))}
+  return (
+    <div className="bg-white border border-slate-200 rounded-[2rem] p-7 shadow-sm">
+      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+        <Send size={16} className="text-orange-500" /> 
+        Action Center
+      </h3>
+      
+      {/* Guideline */}
+      <div className={`rounded-2xl p-4 mb-6 border ${
+        guideline.isPriceRequired 
+          ? 'bg-orange-50 border-orange-200' 
+          : 'bg-slate-50 border-slate-100'
+      }`}>
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5">{guideline.icon}</div>
+          <div>
+            <p className={`text-sm font-bold ${
+              guideline.isPriceRequired ? 'text-orange-700' : 'text-slate-800'
+            }`}>
+              {guideline.title}
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">{guideline.description}</p>
+            {guideline.isPriceRequired && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-[10px] font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
+                  ⚠️ Action Required
+                </span>
+                <span className="text-[10px] text-orange-600">
+                  Set prices in the "Payment & Price" section →
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    );
-  };
+      
+      {/* Action Buttons */}
+      {availableActions.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Available Actions</p>
+          {availableActions.map((action) => (
+            <button
+              key={action.id}
+              onClick={action.action}
+              disabled={isProcessingAction}
+              className="w-full flex items-center justify-between px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl transition-all group disabled:opacity-50"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-sm">{action.label}</span>
+              </div>
+              <ArrowRight size={16} className="text-orange-500 group-hover:translate-x-1 transition-transform" />
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-6">
+          {!pricesConfigured && status === 'pending' ? (
+            <>
+              <div className="text-4xl mb-2">💰</div>
+              <p className="text-sm font-bold text-orange-600">Set Prices First</p>
+              <p className="text-xs text-slate-400 mt-1">Go to "Payment & Price" section to set product price and delivery charge</p>
+            </>
+          ) : (
+            <>
+              <div className="text-4xl mb-2">✅</div>
+              <p className="text-sm font-bold text-slate-600">No actions available</p>
+              <p className="text-xs text-slate-400">All steps are completed</p>
+            </>
+          )}
+        </div>
+      )}
+      
+      {/* Quick Status Update */}
+      <div className="mt-6 pt-6 border-t border-slate-100">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Quick Status Update</p>
+        <div className="grid grid-cols-3 gap-2">
+          {['pending', 'approved', 'completed'].map((s) => (
+            <button
+              key={s}
+              onClick={() => updateOrderStatus(order._id, s)}
+              disabled={isProcessingAction}
+              className={`px-2 py-2 rounded-xl text-[9px] font-black transition-all border ${
+                order.status === s 
+                  ? 'bg-slate-900 text-white border-slate-900' 
+                  : 'bg-white border-slate-200 text-slate-600 hover:border-orange-500 hover:bg-orange-50'
+              }`}
+            >
+              {s.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
